@@ -224,7 +224,6 @@ Common errors:
 The following gaps were identified in the requirements analysis:
 
 1. **Security & Authentication**:
-    - No Token/Session management mechanism
     - No password encryption (if applicable)
     - No Authorization management
 
