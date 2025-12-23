@@ -7,6 +7,6 @@ public class ClientProduct {
     private Product product;
     private String productId;
     private String productName;
-    private String status;
+    private ProductStatus status;
 
 }

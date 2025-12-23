@@ -1,18 +1,19 @@
 package org.example.repository;
 
 import org.example.domain.Client;
+import org.example.domain.ContactMethodType;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class ClientRepository {
 
-    public static HashMap<String, Client> clients;
+    public static ConcurrentHashMap<String, Client> clients;
 
     ClientRepository() {
-        clients = new HashMap<>();
+        clients = new ConcurrentHashMap<>();
     }
 
     public void addClient(String clientId, Client client) {
@@ -23,16 +24,11 @@ public class ClientRepository {
         return Optional.ofNullable(clients.get(clientId));
     }
 
-    public Client deleteClientById(String clientId) {
-        return clients.remove(clientId);
-    }
-
-    public Client updateClientById(String clientId, Client client) {
+    public void updateClientById(String clientId, Client client) {
         clients.put(clientId, client);
-        return client;
     }
 
-    public boolean existsByContactMethod(String methodType, String methodValue) {
+    public boolean existsByContactMethod(ContactMethodType methodType, String methodValue) {
         return clients.values().stream().anyMatch(
                 client -> client.getContactMethod().getMethodType().equals(methodType)
                         && client.getContactMethod().getMethodValue().equals(methodValue));

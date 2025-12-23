@@ -20,7 +20,7 @@
     }
   ],
   "paths": {
-    "/api/product/update": {
+    "/api/products/update": {
       "put": {
         "tags": [
           "product-controller"
@@ -50,7 +50,7 @@
         }
       }
     },
-    "/api/product/buy": {
+    "/api/products/buy": {
       "post": {
         "tags": [
           "product-controller"
@@ -73,6 +73,39 @@
               "*/*": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clients/existing": {
+      "post": {
+        "tags": [
+          "client-controller"
+        ],
+        "operationId": "existingClient",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientAuthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductInfo"
+                  }
                 }
               }
             }
@@ -113,53 +146,22 @@
           }
         }
       }
-    },
-    "/api/clients/client/existing": {
-      "post": {
-        "tags": [
-          "client-controller"
-        ],
-        "operationId": "existingClient",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClientAuthRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ProductInfo"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
       "UpdateProductRequestDto": {
+        "required": [
+          "clientId",
+          "productId",
+          "status"
+        ],
         "type": "object",
         "properties": {
           "clientId": {
             "type": "string"
           },
           "productId": {
-            "type": "string"
-          },
-          "newName": {
             "type": "string"
           },
           "status": {
@@ -167,35 +169,9 @@
           }
         }
       },
-      "ProductBuyNewRequestDto": {
-        "type": "object",
-        "properties": {
-          "clientId": {
-            "type": "string"
-          },
-          "productId": {
-            "type": "string"
-          }
-        }
-      },
-      "ClientAuthRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "contactMethod": {
-            "$ref": "#/components/schemas/ContactMethod"
-          }
-        }
-      },
       "ContactMethod": {
         "type": "object",
         "properties": {
-          "clientId": {
-            "type": "integer",
-            "format": "int64"
-          },
           "methodType": {
             "type": "string"
           },
@@ -204,23 +180,37 @@
           }
         }
       },
-      "Product": {
+      "ProductBuyNewRequestDto": {
+        "required": [
+          "clientId",
+          "contactMethod",
+          "productId"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "contactMethod": {
+            "$ref": "#/components/schemas/ContactMethod"
+          }
+        }
+      },
+      "ClientAuthRequest": {
+        "required": [
+          "contactMethod",
+          "id"
+        ],
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          },
-          "category": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
+          "contactMethod": {
+            "$ref": "#/components/schemas/ContactMethod"
           }
         }
       },
@@ -241,6 +231,26 @@
             "format": "date-time"
           },
           "status": {
+            "type": "string"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
             "type": "string"
           }
         }

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.example.domain.ContactMethod;
+import org.example.domain.ProductStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,9 +26,9 @@ public class ClientWithProductsResponse {
         private String productName;
         private String productDescription;
         private LocalDateTime updateTime;
-        private String status;
+        private ProductStatus status;
 
-        public ProductInfo(String id, String name, String description, String status) {
+        public ProductInfo(String id, String name, String description, ProductStatus status) {
             this.productId = id;
             this.productName = name;
             this.productDescription = description;

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.domain.Client;
 import org.example.domain.ClientProduct;
 import org.example.domain.Product;
+import org.example.domain.ProductStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,22 +34,21 @@ public class ClientProductService {
         if (client.getClientProducts().isEmpty()) {
             client.setClientProducts(new java.util.ArrayList<>());
         }
+        clientProduct.setStatus(ProductStatus.ACTIVE);
         client.getClientProducts().add(clientProduct);
-
+        clientService.update(client);
         return clientProduct;
     }
 
 
-    public void updateProductStatus(String clientId, String productId, String newStatus) {
+    public void updateProductStatus(String clientId, String productId, ProductStatus newStatus) {
         Client client = clientService.getClientById(clientId);
         ClientProduct clientProduct = client.getClientProducts().stream()
                 .filter(cp -> cp.getProduct().getId().equals(productId))
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found for this client"));
-
         clientProduct.setStatus(newStatus);
         clientService.update(client);
     }
-
 
 }

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ContactMethod {
-    private String methodType; // EMAIL, PHONE, SMS
+    private ContactMethodType methodType; // EMAIL, PHONE, SMS
     private String methodValue;
 }
