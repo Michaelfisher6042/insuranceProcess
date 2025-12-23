@@ -1,247 +1,100 @@
-# Insurance Product Management System
+# InsuredProcess API
 
-## 📋 Project Description
+A Spring Boot REST API for managing insurance clients and products using in-memory storage.
 
-A RESTful API system for managing insurance clients and products. The system enables client creation, authentication,
-product purchases, and product status updates.
-
-## 🏗️ Architecture
+## Architecture
+- Spring Boot 3, Java 17
+- In-memory repositories backed by ConcurrentHashMap
+- Controllers + Services + DTOs + Domain
+- OpenAPI via springdoc
+- Global exception handling via @ControllerAdvice
 Diagram:
 ![img.png](img.png)
-
-The system is built on Spring Boot and uses **In-Memory** storage (no database required).
-
-### Layer Structure:
-
-- **Models** - Data entities (Client, Product, ClientProduct)
-- **Repositories** - In-memory storage using ConcurrentHashMap
-- **Services** - Business logic
-- **Controllers** - REST API endpoints
-- **DTOs** - Data Transfer Objects
-
-## 📊 ERD (Entity Relationship Diagram)
-
 ```
-┌─────────────────┐
-│     Client      │
-├─────────────────┤
-│ id (PK)         │
-│ name            │
-│ contactMethod   │
-│ Type            │
-│ contactMethod   │
-│ Value           │
-│ createdAt       │
-└────────┬────────┘
-         │
-         │ 1:N
-         │
-         ▼
-┌─────────────────┐
-│ ClientProduct   │
-├─────────────────┤
-│ product         │──────┐
-│ assignmentDate  │      │
-│ status          │      │ N:1
-└─────────────────┘      │
-                         ▼
-                 ┌───────────────┐
-                 │    Product    │
-                 ├───────────────┤
-                 │ id (PK)       │
-                 │ name          │
-                 │ description   │
-                 └───────────────┘
-```
+## Domain & Enums
+- Client, Product, ClientProduct, ContactMethod
+- ContactMethodType: EMAIL, PHONE, SMS
+- ProductStatus: ACTIVE, INACTIVE, SUSPENDED, CANCELLED
 
-## 🔑 Design Principles
+## Validation & Errors
+- DTOs use Bean Validation (@NotBlank/@NotNull)
+- Consistent error responses: `{ status, message, timestamp }` from GlobalExceptionHandler
 
-1. **Client** - Identified by ID and authenticated using:
-    - ID
-    - Contact Method Type (EMAIL/PHONE/SMS/WHATSAPP)
-    - Contact Method Value
+## API Endpoints
+- POST /api/clients/create — create client
+- POST /api/clients/existing — authenticate and get client products
+- POST /api/products/buy — buy product (requires clientId + contactMethod)
+- PUT /api/products/update — update product status
 
-2. **Product** - Identified by ID
-
-3. **Each client can have each product only once**
-
-4. **In-Memory Storage** - No database required
-
-## 🚀 API Endpoints
-
-The system provides **only 4 endpoints**:
-
-### 1. Create New Client
-
+## Sample Payloads
+Create client
 ```http
-POST /api/client/new
+POST /api/clients/create
 Content-Type: application/json
-
-Request Body:
 {
-  "name": "John Doe",
-  "contactMethodType": "EMAIL",
-  "contactMethodValue": "john@example.com"
-}
-
-Response: 201 Created
-{
-  "id": "1",
-  "name": "John Doe",
-  "contactMethodType": "EMAIL",
-  "contactMethodValue": "john@example.com",
-  "createdAt": "2024-12-23T10:30:00",
-  "clientProducts": []
+  "id": "C001",
+  "contactMethod": { "methodType": "EMAIL", "methodValue": "john@example.org" }
 }
 ```
 
-### 2. Existing Client Authentication & Get Products
-
+Authenticate & get products
 ```http
-POST /api/client/existing
+POST /api/clients/existing
 Content-Type: application/json
-
-Request Body:
 {
-  "clientId": "1",
-  "contactMethodType": "EMAIL",
-  "contactMethodValue": "john@example.com"
+  "id": "C001",
+  "contactMethod": { "methodType": "EMAIL", "methodValue": "john@example.org" }
 }
-
-Response: 200 OK
-[
-  {
-    "productId": "1",
-    "productName": "Life Insurance",
-    "productDescription": "Comprehensive coverage",
-    "assignmentDate": "2024-12-20T14:20:00",
-    "status": "ACTIVE"
-  }
-]
 ```
 
-### 3. Buy Product
-
+List catalog
 ```http
-POST /api/product/buy
-Content-Type: application/json
-
-Request Body:
-{
-    "clientId":"21e1332",
-    "productId":"P001",
-    "newName":"policy-ab",
-    "status":"ACTIVE"
-}
-
-Response: 200 OK
-"Product purchased successfully"
+GET /api/products
 ```
 
-### 4. Update Product Status
-
+Buy product
 ```http
-PUT /api/product/update
+POST /api/products/buy
 Content-Type: application/json
-
-Request Body:
 {
-  "clientId": "1",
-  "productId": "1",
-  "status": "SUSPENDED"
+  "clientId": "C001",
+  "productId": "P001",
+  "contactMethod": { "methodType": "EMAIL", "methodValue": "john@example.org" }
 }
-
-Response: 200 OK
-"Product status updated successfully"
 ```
 
-## 📦 Project Structure
+Update product status
+```http
+PUT /api/products/update
+Content-Type: application/json
+{
+  "clientId": "C001",
+  "productId": "P001",
+  "status": "ACTIVE"
+}
+```
 
+## Run locally
+Prereqs: JDK 17, Gradle wrapper included
 
-
-## 🛠️ Technologies
-
-- **Java 17+**
-- **Spring Boot 3.x**
-- **Lombok** - for reducing boilerplate code
-- **In-Memory Storage** - ConcurrentHashMap
-
-## ⚙️ Installation & Running
-
-### Prerequisites:
-
-- JDK 17 or higher
-- Maven 3.6+
-
-### Steps:
-
-1. **Clone the project**
-
+Build & run
 ```bash
-git clone <repository-url>
-cd insurance-system
+./gradlew clean build
+./gradlew bootRun
 ```
+Server: http://localhost:8080
 
-2. **Build**
+Swagger UI (springdoc):
+- http://localhost:8080/swagger-ui/index.html
 
-```bash
-mvn clean install
-```
+## Notes
+- No database; runtime-only objects
+- Each client can have each product only once (enforced)
+- Product catalog is pre-seeded in memory
+- OpenAPI JSON exists under `src/main/resources/swagger/InsuredProcess.json`; prefer generating from code to avoid drift
 
-3. **Run**
-
-```bash
-mvn spring-boot:run
-```
-
-4. **Server will start on:**
-
-```
-http://localhost:8080
-```
-
-
-## 🔒 Product Status Options
-
-```java
-
-```
-
-## 📝 Validation Rules
-
-
-
-Common errors:
-
-- `Authentication failed` - Invalid authentication details
-- `Client not found` - Client doesn't exist
-- `Product not found` - Product doesn't exist
-- `Client already has this product` - Attempt to purchase existing product
-- `Contact method already exists` - Contact method already in use
-
-## 🎯 What's Missing from the Original Instructions?
-
-The following gaps were identified in the requirements analysis:
-
-1. **Security & Authentication**:
-    - No password encryption (if applicable)
-    - No Authorization management
-
-2. **Validation**:
-    - Valid format for contact methods (Email validation, Phone format)
-    - Additional business rules
-
-3. **Product Creation**:
-    - No endpoint for creating products (products must exist beforehand)
-
-4. **Detailed Error Handling**:
-    - HTTP Status Codes
-    - Detailed error messages
-
-## 📄 License
-
-MIT License
-
-## 👨‍💻 Author
-
-Insurance System - Spring Boot Assignment
+## Known improvements
+- Align OpenAPI spec paths with controllers
+- Add more validation (email/phone formats)
+- Add auth to update endpoint if required
+- Add tests for services/controllers
