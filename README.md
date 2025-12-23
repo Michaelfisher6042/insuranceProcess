@@ -8,8 +8,10 @@ A Spring Boot REST API for managing insurance clients and products using in-memo
 - Controllers + Services + DTOs + Domain
 - OpenAPI via springdoc
 - Global exception handling via @ControllerAdvice
-Diagram:
+
+## Diagram
 ![img.png](img.png)
+
 ```
 ## Domain & Enums
 - Client, Product, ClientProduct, ContactMethod
